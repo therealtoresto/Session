@@ -13,7 +13,7 @@ const generateToken = () => {
     const base = ALPHA_DIGIT.length;
     let key = '';
     for (let i = 0; i < TOKEN_LENGTH; i++) {
-        const index = Math.floor(MAth.random() * base);
+        const index = Math.floor(Math.random() * base);
         key += ALPHA_DIGIT[index];
     }
     return key;
@@ -38,14 +38,17 @@ class Session extends Map {
 
     static restore(client) {
         const { cookie } = client;
+        if (!cookie) return;
         const sessionToken = cookie.token;
         if (sessionToken) {
-            storage.get(sessionToken, (err, session) => {
-                if (session) {
+            return new Promise((resolve, reject) => {
+                storage.get(sessionToken, (err, session) => {
+                    if (err) reject(new Error('No session'));
                     Object.setPrototypeOf(session, Session.prototype);
                     client.token = sessionToken;
                     client.session = session;
-                }
+                    resolve(session);
+                });
             });
         }
     }
@@ -53,10 +56,10 @@ class Session extends Map {
     static delete(client) {
         const { token } = client;
         if (token) {
-            storage.delete(token);
             client.deleteCookie('token');
             client.token = undefined;
             client.session = null;
+            storage.delete(token);
         }
     }
 

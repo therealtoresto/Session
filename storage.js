@@ -54,6 +54,7 @@ class Storage extends Map {
     }
 
     delete(key) {
+        console.log('Delete: ', key);
         deleteSession(key, () => {
             console.log(`Session deleted: ${key}`);
         });

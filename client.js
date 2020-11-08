@@ -21,9 +21,14 @@ class Client {
         this.token = undefined;
         this.session = null;
         this.cookie = {};
-        this.prepareCookie = [];
+        this.preparedCookie = [];
         this.parseCookie();
-        Session.restore(this);
+    }
+
+    static async getInstance(req, res) {
+        const client = new Client(req, res);
+        await Session.restore(client);
+        return client;
     }
 
     parseCookie() {
